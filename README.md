@@ -61,125 +61,144 @@ Principais componentes
 ---
           
 ## ⚙️ Tecnologias Utilizadas
-  ## 🧩 Hardware
-  
-  **Tesouro (T-Beam)**  
-      - LILYGO **TTGO T-Beam**.
-      - ESP32.
-      - LoRa **SX1276/SX1262**  
-      - GPS **NEO-6M / M8M**
-    
-   **Estação-Base (Gateway IoT)**  
-      - **Heltec Wi-Fi LoRa V3**  
-      - ESP32  
-      - LoRa **SX1262**  
-      - Display **OLED integrado**
-  
-   **Caçador**  
-      - Smartphone com:  
-      - Navegador moderno (Chrome, Safari, etc.)  
-      - GPS habilitado  
-
-  ## 🧰 Software 
-
-  - **IDE:** Arduino IDE  
-  - **Linguagem:** C++
-
-   **Tesouro (T-Beam)**  
-      - `SPI.h` – comunicação de alta velocidade com chip LoRa  
-      - `LoRa.h` – controle do rádio LoRa  
-      - `TinyGPS++.h` – leitura e parse dos dados GPS (NMEA)
-    
-   **Estação-Base (Heltec)**  
-      - `SPI.h` – comunicação com o módulo LoRa  
-      - `RadioLib.h` – controle avançado do chip SX1262  
-      - `Wire.h` – comunicação I²C com o display OLED  
-      - `U8g2lib.h` – renderização de texto e gráficos no OLED  
-      - `math.h` – cálculo Haversine e operações matemáticas  
-    
-   **Conectividade com a Nuvem**  
-      - `WiFi.h` – conexão do ESP32 a redes Wi-Fi  
-      - `HTTPClient.h` – envio de requisições HTTP ao Firebase  
-      - `ArduinoJson.h` – montagem de objetos JSON com coordenadas e RSSI  
-
-  ## ☁️ Nuvem e Front-end
-
-   **Backend na Nuvem — Firebase Realtime Database**
-      - Armazena sempre **a última posição** do Tesouro  
-      - Sincronização **quase em tempo real**  
-      - Acesso simples via API REST  
-    
-   **Front-end (Radar Web)**  
-      **Hospedado em GitHub Pages (HTTPS obrigatório)**  
-      - Tecnologias:  
-        - HTML5  
-        - CSS3  
-        - JavaScript (Geolocation API + Firebase SDK)  
-    
-  **Funcionalidades:**  
-      - Lê coordenadas do Tesouro (Firebase)  
-      - Lê coordenadas do Caçador (GPS do smartphone, via HTTPS)  
-      - Calcula distância (Haversine)  
-      - Calcula direção (bearing em graus)  
-      - Renderiza um **radar dinâmico** apontando para o Tesouro  
 
 ---
 
-  ## 📡 Subsistema Local: LoRa + GPS
+## 🧩 Hardware
 
-   **Fluxo Local (Offline)**  
-      1. T-Beam lê coordenadas GPS via **UART** usando `TinyGPS++`  
-      2. Formata em string:  
-         `"-28.123456,-49.456789"`  
-      3. Envia via **LoRa P2P**  
-      4. Heltec V3 escuta continuamente (`RadioLib`)  
-      5. Ao receber um pacote:  
-         - decodifica coordenadas  
-         - exibe latitude, longitude e **RSSI** no OLED  
-    
-   **Interfaces de Comunicação**
-      - **UART** — GPS ↔ ESP32 (T-Beam)  
-      - **SPI** — ESP32 ↔ LoRa (T-Beam e Heltec)  
-      - **I²C** — ESP32 ↔ OLED (Heltec)  
-      
-  ## 🔧 Parâmetros LoRa
-  Configuração otimizada para alcance + estabilidade:
-      **Alcance prático:** 2–5 km em campo aberto  
-      **Consumo:** baixo  
-      **Confiabilidade:** alta  
+### **Tesouro (T-Beam)**  
+- LILYGO **TTGO T-Beam**  
+- ESP32  
+- LoRa **SX1276/SX1262**  
+- GPS **NEO-6M / M8M**
 
-  ## ☁️ Interface em Nuvem e Radar Web
+### **Estação-Base (Gateway IoT)**  
+- **Heltec Wi-Fi LoRa V3**  
+- ESP32  
+- LoRa **SX1262**  
+- Display **OLED integrado**
 
-   **Fluxo de Dados Fim-a-Fim**
-    
-   **1. Tesouro (T-Beam)**
-      - Envia coordenadas via LoRa.
-    
-   **2. Estação-Base (Heltec)**
-      - Recebe via LoRa.  
-      - Monta JSON com:  
-        - latitude  
-        - longitude  
-        - RSSI  
-      - Envia via HTTP (Wi-Fi) para o Firebase.
-      
-   **3. Firebase**
-      - Mantém sempre a **última posição** do Tesouro.  
-      - Atualização rápida (ms).
-    
-   **4. Radar Web (GitHub Pages + JS)**
-      - Lê coordenadas do Tesouro (Firebase).  
-      - Lê coordenadas do Caçador (API de Geolocalização).  
-      - Calcula:  
-        - **distância** (Haversine)  
-        - **direção** (bearing)  
-      - Renderiza radar em tempo real.
-    
-   **Protocolos Utilizados**
-      - **LoRa (915 MHz)** — Tesouro ↔ Estação-Base  
-      - **Wi-Fi** — Estação-Base ↔ Internet  
-      - **HTTP** — Heltec ↔ Firebase  
-      - **HTTPS + Geolocation API** — Radar Web ↔ GPS do smartphone  
+### **Caçador**  
+- Smartphone com:  
+  - Navegador moderno (Chrome, Safari, etc.)  
+  - GPS habilitado  
+
+---
+
+## 🧰 Software Embarcado (Firmware)
+
+- **IDE:** Arduino IDE  
+- **Linguagem:** C++
+
+### **Tesouro (T-Beam)**  
+- `SPI.h` – comunicação de alta velocidade com chip LoRa  
+- `LoRa.h` – controle do rádio LoRa  
+- `TinyGPS++.h` – leitura e parse dos dados GPS (NMEA)
+
+### **Estação-Base (Heltec)**  
+- `SPI.h` – comunicação com o módulo LoRa  
+- `RadioLib.h` – controle avançado do chip SX1262  
+- `Wire.h` – comunicação I²C com o display OLED  
+- `U8g2lib.h` – renderização de texto e gráficos no OLED  
+- `math.h` – cálculo Haversine e operações matemáticas  
+
+### **Conectividade com a Nuvem**  
+- `WiFi.h` – conexão do ESP32 a redes Wi-Fi  
+- `HTTPClient.h` – envio de requisições HTTP ao Firebase  
+- `ArduinoJson.h` – montagem de objetos JSON com coordenadas e RSSI  
+
+---
+
+## ☁️ Nuvem e Front-end
+
+### **Backend na Nuvem — Firebase Realtime Database**
+- Armazena sempre **a última posição** do Tesouro  
+- Sincronização **quase em tempo real**  
+- Acesso simples via API REST  
+
+### **Front-end (Radar Web)**  
+**Hospedado em GitHub Pages (HTTPS obrigatório)**  
+- Tecnologias:  
+  - HTML5  
+  - CSS3  
+  - JavaScript (Geolocation API + Firebase SDK)  
+
+**Funcionalidades:**  
+- Lê coordenadas do Tesouro (Firebase)  
+- Lê coordenadas do Caçador (GPS do smartphone, via HTTPS)  
+- Calcula distância (Haversine)  
+- Calcula direção (bearing em graus)  
+- Renderiza um **radar dinâmico** apontando para o Tesouro  
+
+---
+
+## 📡 Subsistema Local: LoRa + GPS
+
+### **Fluxo Local (Offline)**  
+1. T-Beam lê coordenadas GPS via **UART** usando `TinyGPS++`  
+2. Formata em string:  
+   `"-28.123456,-49.456789"`  
+3. Envia via **LoRa P2P**  
+4. Heltec V3 escuta continuamente (`RadioLib`)  
+5. Ao receber um pacote:  
+   - decodifica coordenadas  
+   - exibe latitude, longitude e **RSSI** no OLED  
+
+### **Interfaces de Comunicação**
+- **UART** — GPS ↔ ESP32 (T-Beam)  
+- **SPI** — ESP32 ↔ LoRa (T-Beam e Heltec)  
+- **I²C** — ESP32 ↔ OLED (Heltec)  
+
+---
+
+## 🔧 Parâmetros LoRa
+
+Configuração otimizada para alcance + estabilidade:
+
+| Parâmetro | Valor | Descrição |
+|----------|-------|-----------|
+| **Spreading Factor (SF)** | 9 | Equilíbrio entre alcance e velocidade |
+| **Coding Rate (CR)** | 4/7 | Mais tolerância contra interferências |
+| **Bandwidth (BW)** | 125 kHz | Padrão para longo alcance e estabilidade |
+
+**Alcance prático:** 2–5 km em campo aberto  
+**Consumo:** baixo  
+**Confiabilidade:** alta  
+
+---
+
+## ☁️ Interface em Nuvem e Radar Web
+
+### **Fluxo de Dados Fim-a-Fim**
+
+#### **1. Tesouro (T-Beam)**
+- Envia coordenadas via LoRa.
+
+#### **2. Estação-Base (Heltec)**
+- Recebe via LoRa.  
+- Monta JSON com:  
+  - latitude  
+  - longitude  
+  - RSSI  
+- Envia via HTTP (Wi-Fi) para o Firebase.
+
+#### **3. Firebase**
+- Mantém sempre a **última posição** do Tesouro.  
+- Atualização rápida (ms).
+
+#### **4. Radar Web (GitHub Pages + JS)**
+- Lê coordenadas do Tesouro (Firebase).  
+- Lê coordenadas do Caçador (API de Geolocalização).  
+- Calcula:  
+  - **distância** (Haversine)  
+  - **direção** (bearing)  
+- Renderiza radar em tempo real.
+
+### **Protocolos Utilizados**
+- **LoRa (915 MHz)** — Tesouro ↔ Estação-Base  
+- **Wi-Fi** — Estação-Base ↔ Internet  
+- **HTTP** — Heltec ↔ Firebase  
+- **HTTPS + Geolocation API** — Radar Web ↔ GPS do smartphone  
 
 ---
 
@@ -198,19 +217,41 @@ Principais componentes
 - Comunicação LoRa P2P **estável**  
 - Rastreamento **offline** funcionando perfeitamente  
 
-  ## ⚠️ Riscos e Desafios Enfrentados
+---
 
-    ### **Instabilidade da biblioteca Heltec.h**
-    - Problema: comportamento instável do chip  
-    - Mitigação: uso de **RadioLib**, mais confiável
-    
-    ### **Incompatibilidade entre chips LoRa**
-    - T-Beam: `LoRa.h` (SX1276/SX1262)  
-    - Heltec: `RadioLib` (SX1262)  
-    - Mitigação: alinhamento manual de SF, CR, BW e frequência
-    
-    ### **Restrição de GPS em HTTP**
-    - Navegadores bloqueiam Geolocation API em HTTP  
-    - Mitigação:  
-      - GitHub Pages (HTTPS)  
-      - Comunicação via nuvem em vez de conexão direta  
+### **Parte 2 – Integração com Nuvem**
+**Heltec como Gateway IoT:**  
+- Faz ponte LoRa ↔ Wi-Fi ↔ Firebase  
+- Latência baixa (milissegundos)
+
+**Radar Web:**  
+- Executado via HTTPS  
+- GPS do smartphone liberado  
+- Mostra distância e direção do Tesouro em tempo real
+
+**Resultado Final:**  
+Sistema IoT completo para Caça ao Tesouro:  
+LoRa ➜ Wi-Fi ➜ Firebase ➜ Radar Web  
+Totalmente funcional e com fluxo transparente para o usuário.
+
+---
+
+## ⚠️ Riscos e Desafios Enfrentados
+
+### **Instabilidade da biblioteca Heltec.h**
+- Problema: comportamento instável do chip  
+- Mitigação: uso de **RadioLib**, mais confiável
+
+### **Incompatibilidade entre chips LoRa**
+- T-Beam: `LoRa.h` (SX1276/SX1262)  
+- Heltec: `RadioLib` (SX1262)  
+- Mitigação: alinhamento manual de SF, CR, BW e frequência
+
+### **Restrição de GPS em HTTP**
+- Navegadores bloqueiam Geolocation API em HTTP  
+- Mitigação:  
+  - GitHub Pages (HTTPS)  
+  - Comunicação via nuvem em vez de conexão direta  
+
+---
+
