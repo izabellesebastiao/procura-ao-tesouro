@@ -1,21 +1,51 @@
-# procura-ao-tesouro
+# 🗺️ Caça ao Tesouro IoT com LoRa, GPS e Web em Tempo Real
 
-Este trabalho tem como objetivo central fazer um jogo de caça ao tesouro usando um sistema de rastreamento em tempo real, onde um dispositivo móvel, o tesouro, transmite a sua localização GPS via rádio LoRa. Uma estação-base recebe esses dados e os retransmite para uma base de dados na nuvem. O caçador acessa uma página web através de qualquer ligação à internet no seu próprio smartphone, que exibe um radar em tempo real, calculando a distância e a direção até o Tesouro com base na localização GPS do próprio telemóvel e nos dados recebidos da nuvem.
+Jogo de **caça ao tesouro** baseado em um sistema de rastreamento em tempo real.  
+O “Tesouro” é um dispositivo móvel com GPS + LoRa, e o “Caçador” acompanha a posição em um **radar web** no smartphone, via nuvem.
 
-# Componentes
-Para o desenvolvimento do jogo, precisamos de alguns componentes e ferramentas imprescindíveis para a execução do projeto. O primeiro foi a placa LILYGO TTGO T-Beam, que possui o Microcontrolador ESP32, LoRa (SX1276/SX1262) e o módulo GPS (NEO-6M/M8M) integrados, foi escolhida (LILYGO, 2022). Este componente tem como objetivo adquirir sua própria localização e compartilhar via LoRa, para sinalizar a posição do tesouro. Já para a estação-base foi escolhida a placa Heltec V3, que possui o Microcontrolador ESP32, LoRa (SX1262) e um display OLED. Ela é responsável por pegar a localização que o tesouro está passando pela comunicação P2P e mostrar em seu display.
-Para o caçador, também será necessário um componente GPS, para isso, optou-se pela utilização do GPS de smartphones, pois é um artigo básico de qualquer pessoa, além de possuir uma tela que serve de display para os dados. O smartphone pegará sua própria localização e a comparará com a do tesouro, utilizando a interface da página web disponibilizada pela estação-base.
+> Do ponto de vista técnico, o projeto demonstra a integração prática entre **LoRa**, **ESP32**, **GPS**, **Firebase Realtime Database** e **GitHub Pages (HTTPS)** em uma arquitetura IoT.
 
-Alem disso, para realizar o desenvolvimento da parte de software, foi utilizado o ambiente de desenvolvimento integrado (IDE) Arduino IDE, para todo o firmware embarcado usados nas placas do LILYGO TTGO T-Beam e Heltec LoRa V3, que são nosso tesouro e estação-base respectivamente. A plataforma foi escolhida pois permite realizar a programação de ambas as placas na linguagem de programação C++, além de contar com uma robusta biblioteca de componentes.
-Para a parte de desenvolvimento do software do tesouro, utilizamos bibliotecas SPI.h, (Serial Peripheral Interface) biblioteca-padrão do Arduino IDE, responsável pela comunicação de alta velocidade entre o ESP32 e o chip de rádio LoRa, além da biblioteca LoRa.h, utilizada para simplificar a inicialização e o envio de dados através do transceptor LoRa da placa T-Beam. E por último a biblioteca TinyGPS++.h, utilizada para ler o fluxo de dados da porta Serial e fazer a análise das coordenadas GPS (latitude e longitude) enviadas pelo módulo GPS integrado.
+---
 
-Agora com foco na estação-base, também utilizamos a biblioteca SPI.h, como já citado no T-Beam. Agora temos uma alteração na biblioteca que controla a comunicação LoRa, utilizamos a biblioteca RadioLib.h, e não mais a biblioteca LoRa como no código do tesouro, a biblioteca RadioLib.h é mais avançada, selecionada especificamente para garantir a compatibilidade e o controle do chip SX1262 presente na placa Heltec V3. A biblioteca Wire.h é padrão do Arduino para a comunicação I2C (Inter-Integrated Circuit),  utilizada para a comunicação entre o ESP32 e o display OLED. Já a biblioteca U8g2lib.h, com objetivo de controlar o display OLED do Heltec, exibindo o status do sistema e os dados recebidos. E por último, a biblioteca math.h, responsável por fazer o cálculo de Haversine, achando assim a longitude e latitude.
-Além disso, na parte de implementação da página web, vamos incluir no Heltec a biblioteca padrão do ESP32, a biblioteca  WiFi.h para se conectar à internet através de uma rede Wi-Fi. Para publicar os dados, são utilizadas as bibliotecas HTTPClient.h, que realiza pedidos ao servidor da nuvem, e a biblioteca ArduinoJson.h que formata os dados de localização num objeto JSON.
+## 🔍 Visão Geral
 
-A parte da  plataforma de nuvem utilizaremos o Google Firebase Realtime Database, uma opção gratuita e de fácil acesso. Para o desenvolvimento da página web com https, o github pages será utilizado, pois ele disponibiliza um domínio público e gratuito para hospedar qualquer página (GitHub, 2024). Deste modo, o github pages hospedará uma interface amigável que mostrará a comunicação em tempo real entre o caçador e o tesouro.
+- **Objetivo**: criar um jogo de caça ao tesouro em que:
+  - o **Tesouro** transmite sua localização via LoRa;
+  - uma **Estação-Base** recebe esses dados e envia para a nuvem;
+  - o **Caçador** acessa uma página web (HTTPS) no smartphone e vê:
+    - distância até o Tesouro;
+    - direção aproximada (radar).
 
-# Subsistema Local (LoRa + GPS)
-O funcionamento do subsistema inicia-se com a leitura dos dados do módulo GPS pelo microcontrolador ESP32 presente na placa T-Beam. A biblioteca TinyGPS++ é responsável por interpretar as sentenças NMEA recebidas pela interface UART (Serial2) e extrair as informações válidas de latitude e longitude. A cada intervalo de tempo definido, o T-Beam formata essas coordenadas em uma string simples (exemplo: “–28.123456,–49.456789”) e as transmite via rádio LoRa.
-Na outra extremidade, a estação-base Heltec V3, utilizando a biblioteca RadioLib, mantém o módulo SX1262 em modo de escuta contínua. Ao receber um pacote válido, o microcontrolador decodifica os dados e os exibe no display OLED integrado por meio da biblioteca U8g2lib, apresentando a posição do Tesouro e o valor de RSSI (Received Signal Strength Indicator), que indica a intensidade do sinal recebido.
+- **Por que LoRa?**
+  - Alcance de até alguns quilômetros;
+  - Baixo consumo de energia;
+  - Melhor alternativa que Wi-Fi/Bluetooth para dispositivos móveis de longo alcance.
 
+---
 
+## 🧩 Conceito do Jogo
+
+- Jogo clássico de **Caça ao Tesouro**:
+  - o Tesouro é escondido em algum lugar;
+  - o Caçador precisa encontrá-lo.
+- Nesta versão:
+  - o Tesouro “sabe” sua própria localização (GPS);
+  - envia a posição em tempo real via rádio LoRa;
+  - o Caçador usa o **smartphone** para seguir as pistas no radar web.
+
+---
+
+## 🏗️ Arquitetura do Sistema
+
+### Visão de alto nível
+
+```mermaid
+flowchart LR
+    T[Tesouro<br/>T-Beam (ESP32 + LoRa + GPS)]
+      -->|Coordenadas via LoRa| H[Estação-Base<br/>Heltec ESP32 LoRa V3]
+
+    H -->|HTTP + JSON via Wi-Fi| F[Firebase Realtime Database]
+
+    F -->|HTTPS + API JS| W[Radar Web<br/>GitHub Pages + Smartphone]
+
+    W -->|Geolocalização (GPS)| C[Caçador]
