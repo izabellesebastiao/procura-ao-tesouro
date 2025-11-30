@@ -57,73 +57,77 @@ Principais componentes
         - distância (fórmula de Haversine);
         - direção (bearing entre as coordenadas).
         - Exibe um radar em tempo real no smartphone.
+
+---
           
 ## ⚙️ Tecnologias Utilizadas
   ## 🧩 Hardware
-
-    ### **Tesouro (T-Beam)**  
-        - LILYGO **TTGO T-Beam**  
-        - ESP32  
-        - LoRa **SX1276/SX1262**  
-        - GPS **NEO-6M / M8M**
-    
-    ### **Estação-Base (Gateway IoT)**  
-        - **Heltec Wi-Fi LoRa V3**  
-        - ESP32  
-        - LoRa **SX1262**  
-        - Display **OLED integrado**
   
-    ### **Caçador**  
-        - Smartphone com:  
-        - Navegador moderno (Chrome, Safari, etc.)  
-        - GPS habilitado  
+  **Tesouro (T-Beam)**  
+      - LILYGO **TTGO T-Beam**.
+      - ESP32.
+      - LoRa **SX1276/SX1262**  
+      - GPS **NEO-6M / M8M**
+    
+   **Estação-Base (Gateway IoT)**  
+      - **Heltec Wi-Fi LoRa V3**  
+      - ESP32  
+      - LoRa **SX1262**  
+      - Display **OLED integrado**
+  
+   **Caçador**  
+      - Smartphone com:  
+      - Navegador moderno (Chrome, Safari, etc.)  
+      - GPS habilitado  
 
   ## 🧰 Software 
 
   - **IDE:** Arduino IDE  
   - **Linguagem:** C++
 
-    ### **Tesouro (T-Beam)**  
+   **Tesouro (T-Beam)**  
       - `SPI.h` – comunicação de alta velocidade com chip LoRa  
       - `LoRa.h` – controle do rádio LoRa  
       - `TinyGPS++.h` – leitura e parse dos dados GPS (NMEA)
     
-    ### **Estação-Base (Heltec)**  
+   **Estação-Base (Heltec)**  
       - `SPI.h` – comunicação com o módulo LoRa  
       - `RadioLib.h` – controle avançado do chip SX1262  
       - `Wire.h` – comunicação I²C com o display OLED  
       - `U8g2lib.h` – renderização de texto e gráficos no OLED  
       - `math.h` – cálculo Haversine e operações matemáticas  
     
-    ### **Conectividade com a Nuvem**  
+   **Conectividade com a Nuvem**  
       - `WiFi.h` – conexão do ESP32 a redes Wi-Fi  
       - `HTTPClient.h` – envio de requisições HTTP ao Firebase  
       - `ArduinoJson.h` – montagem de objetos JSON com coordenadas e RSSI  
 
   ## ☁️ Nuvem e Front-end
 
-    ### **Backend na Nuvem — Firebase Realtime Database**
+   **Backend na Nuvem — Firebase Realtime Database**
       - Armazena sempre **a última posição** do Tesouro  
       - Sincronização **quase em tempo real**  
       - Acesso simples via API REST  
     
-    ### **Front-end (Radar Web)**  
+   **Front-end (Radar Web)**  
       **Hospedado em GitHub Pages (HTTPS obrigatório)**  
       - Tecnologias:  
         - HTML5  
         - CSS3  
         - JavaScript (Geolocation API + Firebase SDK)  
     
-    **Funcionalidades:**  
+  **Funcionalidades:**  
       - Lê coordenadas do Tesouro (Firebase)  
       - Lê coordenadas do Caçador (GPS do smartphone, via HTTPS)  
       - Calcula distância (Haversine)  
       - Calcula direção (bearing em graus)  
       - Renderiza um **radar dinâmico** apontando para o Tesouro  
 
+---
+
   ## 📡 Subsistema Local: LoRa + GPS
 
-    ### **Fluxo Local (Offline)**  
+   **Fluxo Local (Offline)**  
       1. T-Beam lê coordenadas GPS via **UART** usando `TinyGPS++`  
       2. Formata em string:  
          `"-28.123456,-49.456789"`  
@@ -133,26 +137,25 @@ Principais componentes
          - decodifica coordenadas  
          - exibe latitude, longitude e **RSSI** no OLED  
     
-    ### **Interfaces de Comunicação**
+   **Interfaces de Comunicação**
       - **UART** — GPS ↔ ESP32 (T-Beam)  
       - **SPI** — ESP32 ↔ LoRa (T-Beam e Heltec)  
       - **I²C** — ESP32 ↔ OLED (Heltec)  
       
   ## 🔧 Parâmetros LoRa
-
-    Configuração otimizada para alcance + estabilidade:
+  Configuração otimizada para alcance + estabilidade:
       **Alcance prático:** 2–5 km em campo aberto  
       **Consumo:** baixo  
       **Confiabilidade:** alta  
 
   ## ☁️ Interface em Nuvem e Radar Web
 
-    ### **Fluxo de Dados Fim-a-Fim**
+   **Fluxo de Dados Fim-a-Fim**
     
-    #### **1. Tesouro (T-Beam)**
+   **1. Tesouro (T-Beam)**
       - Envia coordenadas via LoRa.
     
-    #### **2. Estação-Base (Heltec)**
+   **2. Estação-Base (Heltec)**
       - Recebe via LoRa.  
       - Monta JSON com:  
         - latitude  
@@ -160,11 +163,11 @@ Principais componentes
         - RSSI  
       - Envia via HTTP (Wi-Fi) para o Firebase.
       
-    #### **3. Firebase**
+   **3. Firebase**
       - Mantém sempre a **última posição** do Tesouro.  
       - Atualização rápida (ms).
     
-    #### **4. Radar Web (GitHub Pages + JS)**
+   **4. Radar Web (GitHub Pages + JS)**
       - Lê coordenadas do Tesouro (Firebase).  
       - Lê coordenadas do Caçador (API de Geolocalização).  
       - Calcula:  
@@ -172,11 +175,13 @@ Principais componentes
         - **direção** (bearing)  
       - Renderiza radar em tempo real.
     
-    ### **Protocolos Utilizados**
+   **Protocolos Utilizados**
       - **LoRa (915 MHz)** — Tesouro ↔ Estação-Base  
       - **Wi-Fi** — Estação-Base ↔ Internet  
       - **HTTP** — Heltec ↔ Firebase  
       - **HTTPS + Geolocation API** — Radar Web ↔ GPS do smartphone  
+
+---
 
 ## ✅ Resultados Alcançados
 
