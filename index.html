@@ -61,11 +61,11 @@
 
     <script>
       
-        // URL da SUA base de dados Firebase (o mesmo que está no Heltec)
+        // URL do Firebase 
         const FIREBASE_URL = "https://radar-tesouro-esp32-default-rtdb.firebaseio.com/.json";
         // -----------------
 
-        const MODO_TESTE = false; // <<< MODO REAL!
+        const MODO_TESTE = false; // <<< MODO 
 
         // Pega os elementos da página
         const distanciaEl = document.getElementById('distancia');
@@ -116,7 +116,7 @@
             }
         }
 
-        // 2. Função chamada quando o GPS do celular (Caçador) funciona
+        // 2. Função chamada quando o GPS do celular (Caçador)
         async function onGpsSuccess(posicaoCacador) {
             const cacadorLat = posicaoCacador.coords.latitude;
             const cacadorLon = posicaoCacador.coords.longitude;
